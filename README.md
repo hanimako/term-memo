@@ -1,34 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 専門用語メモアプリケーション
 
-## Getting Started
+専門用語を登録・管理し、効率的に記憶に定着させるための個人開発向け Web アプリケーションです。
 
-First, run the development server:
+## 機能
 
+### 単語の登録・管理
+- **新規登録**: 専門用語とその意味を登録
+- **編集**: 登録済み単語の情報を編集
+- **削除**: 個別削除と一括削除
+- **検索・フィルター**: ワードや意味での検索、属性でのフィルター
+
+### 登録項目
+- **ワード**（必須）: 専門用語
+- **意味**（必須）: 単語の意味
+- **属性**（任意）: 介護、医療、情報処理など
+- **読み仮名**（任意）: ひらがなでの読み方
+- **別名**（任意）: 別の呼び方
+- **通称**（任意）: 一般的な呼び方
+- **略称**（任意）: 略称
+- **画像**（任意）: 画像URL
+
+### テスト機能
+- **4択問題**: ワードを問題として提示し、意味を4つの選択肢から選択
+- **属性別選択肢**: 同じ属性の単語から選択肢を生成
+- **結果保存**: テスト結果を自動保存
+- **成績表示**: 正答率と詳細な結果を表示
+
+## 技術スタック
+
+- **フロントエンド**: Next.js 15.5.0 (App Router)
+- **スタイリング**: Tailwind CSS 4
+- **データ管理**: ローカルストレージ
+- **デプロイ**: Vercel対応
+
+## デザイン
+
+- **コンセプト**: デジタル的、コマンドライン風のUI
+- **カラースキーム**: ダークモード基調、青緑系のテキストとアクセントカラー
+- **デザインシステム**: マテリアルデザインのコンポーネント構造を参考
+
+## 開発・実行
+
+### 必要な環境
+- Node.js 18以上
+- npm または yarn
+
+### セットアップ
 ```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### ビルド
+```bash
+# 本番用ビルド
+npm run build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# 本番サーバーの起動
+npm start
+```
 
-## Learn More
+## 使用方法
 
-To learn more about Next.js, take a look at the following resources:
+1. **単語登録**: 「新しい単語を登録」ボタンから専門用語を登録
+2. **単語管理**: 一覧画面で単語の編集・削除・検索が可能
+3. **テスト実行**: 4つ以上の単語を登録後、「テストモード」で学習効果を確認
+4. **データ管理**: すべてのデータはブラウザのローカルストレージに保存
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 特徴
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **オフライン対応**: ローカルストレージを使用するため、インターネット接続不要
+- **レスポンシブデザイン**: モバイル・デスクトップ両対応
+- **直感的なUI**: コマンドライン風のデザインで使いやすい
+- **効率的な学習**: 属性別の選択肢生成で効果的なテスト機能
 
-## Deploy on Vercel
+## ライセンス
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+このプロジェクトは個人開発向けのオープンソースソフトウェアです。
