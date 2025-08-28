@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Term } from "./types/term";
 import { TermStorage } from "./utils/storage";
+import { useTheme } from "./contexts/ThemeContext";
 import TermForm from "./components/TermForm";
 import TermList from "./components/TermList";
 import TestMode from "./components/TestMode";
@@ -19,6 +20,7 @@ export default function Home() {
     "word"
   );
   const [categoryFilter, setCategoryFilter] = useState("");
+  const { isDarkMode } = useTheme();
 
   useEffect(() => {
     loadTerms();
@@ -69,12 +71,16 @@ export default function Home() {
   const stats = getStats();
 
   return (
-    <main className="min-h-screen p-4 md:p-8">
+    <main
+      className={`min-h-screen p-4 md:p-8 transition-colors duration-200 ${
+        isDarkMode ? "bg-gray-900 text-gray-100" : "bg-gray-900 text-cyan-400"
+      }`}
+    >
       <div className="max-w-6xl mx-auto">
         {/* ヘッダー */}
         <header className="mb-8 relative">
           <div className="mb-6">
-            <h1 className="text-lg font-bold mb-2 terminal-text">
+            <h1 className="text-2xl font-bold mb-2 terminal-text">
               専門用語メモ
             </h1>
           </div>

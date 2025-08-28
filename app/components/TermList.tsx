@@ -31,7 +31,11 @@ export default function TermList({
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("この単語を削除しますか？")) {
+    const term = terms.find((t) => t.id === id);
+    if (
+      term &&
+      confirm(`「${term.word}」を削除しますか？\nこの操作は取り消せません。`)
+    ) {
       TermStorage.deleteTerm(id);
       loadTerms();
       onRefresh();
@@ -41,7 +45,11 @@ export default function TermList({
   const handleBulkDelete = () => {
     if (selectedTerms.size === 0) return;
 
-    if (confirm(`${selectedTerms.size}個の単語を削除しますか？`)) {
+    if (
+      confirm(
+        `${selectedTerms.size}個の単語を削除しますか？\nこの操作は取り消せません。`
+      )
+    ) {
       const deletedCount = TermStorage.deleteMultipleTerms(
         Array.from(selectedTerms)
       );
@@ -132,7 +140,11 @@ export default function TermList({
             <span className="terminal-text">
               {selectedTerms.size}個の単語が選択されています
             </span>
-            <button onClick={handleBulkDelete} className="terminal-button">
+            <button
+              onClick={handleBulkDelete}
+              className="bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-2 rounded transition-colors duration-200"
+              title="選択された単語をすべて削除します"
+            >
               一括削除
             </button>
           </div>
@@ -179,84 +191,88 @@ export default function TermList({
                     type="checkbox"
                     checked={selectedTerms.has(term.id)}
                     onChange={() => handleSelectTerm(term.id)}
-                    className="mt-1"
+                    className="mt-1 flex-shrink-0 custom-checkbox"
                   />
 
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-bold text-lg terminal-accent">
+                  <div className="flex-1 min-w-0">
+                    <div className="space-y-3">
+                      {/* 用語名と編集ボタン */}
+                      <div className="flex items-start justify-between gap-2">
+                        <h4 className="font-bold text-lg terminal-accent break-words">
                           {term.word}
                         </h4>
-                        <p className="text-gray-300 mt-1">{term.meaning}</p>
-
-                        <div className="flex flex-wrap gap-2 mt-2 text-sm">
-                          {term.category && (
-                            <span className="bg-cyan-600/20 text-cyan-300 px-2 py-1 rounded">
-                              {term.category}
-                            </span>
-                          )}
-                          {term.reading && (
-                            <span className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded">
-                              読み: {term.reading}
-                            </span>
-                          )}
-                          {term.alias && (
-                            <span className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded">
-                              別名: {term.alias}
-                            </span>
-                          )}
-                          {term.commonName && (
-                            <span className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded">
-                              通称: {term.commonName}
-                            </span>
-                          )}
-                          {term.abbreviation && (
-                            <span className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded">
-                              略: {term.abbreviation}
-                            </span>
-                          )}
-                        </div>
-
-                        {term.image && (
-                          <div className="mt-2">
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img
-                              src={term.image}
-                              alt={term.word}
-                              className="max-w-xs max-h-32 object-contain rounded border border-gray-600"
-                              onError={(e) => {
-                                e.currentTarget.style.display = "none";
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2 ml-4">
                         <button
                           onClick={() => onEdit(term)}
-                          className="terminal-button px-3 py-1 text-sm"
+                          className="terminal-button px-3 py-1 text-sm flex-shrink-0"
                         >
                           編集
                         </button>
-                        <button
-                          onClick={() => handleDelete(term.id)}
-                          className="terminal-button px-3 py-1 text-sm"
-                        >
-                          削除
-                        </button>
                       </div>
-                    </div>
 
-                    <div className="text-xs text-gray-500 mt-2">
-                      登録日: {formatDate(term.createdAt)}
-                      {term.updatedAt.getTime() !==
-                        term.createdAt.getTime() && (
-                        <span className="ml-4">
-                          更新日: {formatDate(term.updatedAt)}
-                        </span>
+                      {/* 意味 */}
+                      <p className="text-gray-300 break-words leading-relaxed">
+                        {term.meaning}
+                      </p>
+
+                      {/* タグ類 */}
+                      <div className="flex flex-wrap gap-2 text-sm">
+                        {term.category && (
+                          <span className="bg-cyan-600/20 text-cyan-300 px-2 py-1 rounded">
+                            {term.category}
+                          </span>
+                        )}
+                        {term.reading && (
+                          <span className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded">
+                            読み: {term.reading}
+                          </span>
+                        )}
+                        {term.officialName && (
+                          <span className="bg-blue-600/20 text-blue-300 px-2 py-1 rounded">
+                            正式: {term.officialName}
+                          </span>
+                        )}
+                        {term.alias && (
+                          <span className="bg-cyan-600/20 text-cyan-300 px-2 py-1 rounded">
+                            別名: {term.alias}
+                          </span>
+                        )}
+                        {term.commonName && (
+                          <span className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded">
+                            通称: {term.commonName}
+                          </span>
+                        )}
+                        {term.abbreviation && (
+                          <span className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded">
+                            略: {term.abbreviation}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* 画像 */}
+                      {term.image && (
+                        <div className="mt-2">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={term.image}
+                            alt={term.word}
+                            className="max-w-full max-h-32 object-contain rounded border border-gray-600"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        </div>
                       )}
+
+                      {/* 日付情報 */}
+                      <div className="text-xs text-gray-500">
+                        <div>登録日: {formatDate(term.createdAt)}</div>
+                        {term.updatedAt.getTime() !==
+                          term.createdAt.getTime() && (
+                          <div className="mt-1">
+                            更新日: {formatDate(term.updatedAt)}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

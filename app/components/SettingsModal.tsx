@@ -2,6 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { TermStorage } from "../utils/storage";
+import { useTheme } from "../contexts/ThemeContext";
+import LoginButton from "./LoginButton";
+import ExportButton from "./ExportButton";
+import ImportButton from "./ImportButton";
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -23,10 +27,23 @@ function SettingsModal({
   onCategoryFilterChange,
 }: SettingsModalProps) {
   const [mounted, setMounted] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   useEffect(() => {
     setMounted(true);
+    // Google Drive接続状態をチェック
+    checkConnectionStatus();
   }, []);
+
+  const checkConnectionStatus = async () => {
+    try {
+      const response = await fetch("/api/google-drive/token");
+      setIsConnected(response.ok);
+    } catch (error) {
+      setIsConnected(false);
+    }
+  };
 
   const categories = TermStorage.getCategories();
 
@@ -109,17 +126,78 @@ function SettingsModal({
               </select>
             </div>
 
+            {/* ダークモード */}
+            <div className="pt-4 border-t border-gray-700">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium terminal-text">
+                  ダークモード
+                </label>
+                <button
+                  onClick={toggleDarkMode}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                    isDarkMode ? "bg-cyan-600" : "bg-gray-400"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
+                      isDarkMode ? "translate-x-6" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">
+                {isDarkMode ? "ダークテーマで表示中" : "通常テーマで表示中"}
+              </p>
+            </div>
+
+            {/* Google Drive連携 */}
+            <div className="pt-4 border-t border-gray-700">
+              <h3 className="text-sm font-medium mb-3 terminal-text">
+                Google Drive連携
+              </h3>
+
+              {!isConnected ? (
+                <LoginButton onLoginSuccess={checkConnectionStatus} />
+              ) : (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-green-400">
+                    <svg
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    接続済み
+                  </div>
+                  <ExportButton onExportSuccess={onRefresh} />
+                  <ImportButton onImportSuccess={onRefresh} />
+                </div>
+              )}
+            </div>
+
             {/* 全データ削除 */}
             <div className="pt-4 border-t border-gray-700">
-              <button
-                onClick={handleDeleteAllData}
-                className="w-full bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-3 rounded transition-colors duration-200"
-              >
-                全データ削除
-              </button>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                この操作は取り消せません
-              </p>
+              <div className="bg-red-900/20 border border-red-600 rounded-lg p-4">
+                <h3 className="text-sm font-medium mb-3 text-red-400">
+                  ⚠️ 危険な操作
+                </h3>
+                <p className="text-xs text-gray-400 mb-4">
+                  この操作により、登録されているすべての単語とテスト結果が完全に削除されます。
+                  この操作は取り消すことができません。
+                </p>
+                <button
+                  onClick={handleDeleteAllData}
+                  className="w-full bg-red-600 hover:bg-red-500 text-white font-semibold px-4 py-3 rounded transition-colors duration-200"
+                  title="すべてのデータを削除します（取り消し不可）"
+                >
+                  全データ削除
+                </button>
+              </div>
             </div>
           </div>
         </div>

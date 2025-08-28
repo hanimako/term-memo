@@ -40,15 +40,12 @@ export default function TestMode({ onBack }: TestModeProps) {
   const handleAnswerSelect = (answer: string) => {
     if (isAnswered) return;
     setSelectedAnswer(answer);
-  };
 
-  const handleSubmitAnswer = () => {
-    if (!selectedAnswer || !currentQuestion) return;
-
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+    // 選択と同時に回答を確定
+    const isCorrect = answer === currentQuestion.correctAnswer;
     const result: TestResult = {
       questionId: currentQuestion.id,
-      selectedAnswer,
+      selectedAnswer: answer,
       isCorrect,
       answeredAt: new Date(),
     };
@@ -132,14 +129,14 @@ export default function TestMode({ onBack }: TestModeProps) {
             </div>
 
             <div className="flex gap-3">
-              <button onClick={startTest} className="terminal-button flex-1">
-                テスト開始
-              </button>
               <button
                 onClick={onBack}
                 className="bg-gray-700 hover:bg-gray-600 text-cyan-400 font-semibold px-4 py-2 rounded transition-colors duration-200 flex-1"
               >
                 戻る
+              </button>
+              <button onClick={startTest} className="terminal-button flex-1">
+                テスト開始
               </button>
             </div>
           </div>
@@ -236,14 +233,14 @@ export default function TestMode({ onBack }: TestModeProps) {
         </div>
 
         <div className="flex gap-3">
-          <button onClick={handleRetry} className="terminal-button flex-1">
-            再テスト
-          </button>
           <button
             onClick={onBack}
             className="bg-gray-700 hover:bg-gray-600 text-cyan-400 font-semibold px-4 py-2 rounded transition-colors duration-200 flex-1"
           >
             戻る
+          </button>
+          <button onClick={handleRetry} className="terminal-button flex-1">
+            再テスト
           </button>
         </div>
       </div>
@@ -304,19 +301,14 @@ export default function TestMode({ onBack }: TestModeProps) {
 
           {/* ボタン */}
           <div className="flex gap-3">
-            {!isAnswered ? (
-              <button
-                onClick={handleSubmitAnswer}
-                disabled={!selectedAnswer}
-                className={`flex-1 px-4 py-2 rounded font-semibold transition-colors duration-200 ${
-                  selectedAnswer
-                    ? "terminal-button"
-                    : "bg-gray-700 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                回答する
-              </button>
-            ) : (
+            <button
+              onClick={onBack}
+              className="bg-gray-700 hover:bg-gray-600 text-cyan-400 font-semibold px-4 py-2 rounded transition-colors duration-200"
+            >
+              中断
+            </button>
+
+            {isAnswered && (
               <button
                 onClick={handleNextQuestion}
                 className="terminal-button flex-1"
@@ -324,13 +316,6 @@ export default function TestMode({ onBack }: TestModeProps) {
                 {isLastQuestion ? "結果を見る" : "次の問題"}
               </button>
             )}
-
-            <button
-              onClick={onBack}
-              className="bg-gray-700 hover:bg-gray-600 text-cyan-400 font-semibold px-4 py-2 rounded transition-colors duration-200"
-            >
-              中断
-            </button>
           </div>
         </div>
       )}

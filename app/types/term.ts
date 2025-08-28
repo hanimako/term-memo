@@ -4,6 +4,7 @@ export interface Term {
   meaning: string;
   category?: string;
   reading?: string;
+  officialName?: string;
   alias?: string;
   commonName?: string;
   abbreviation?: string;

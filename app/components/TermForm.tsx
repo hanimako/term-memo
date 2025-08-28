@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { Term } from "../types/term";
 import { TermStorage } from "../utils/storage";
 import { ImageCompressor, CompressedImage } from "../utils/image-compressor";
+import ComboBox from "./ComboBox";
 
 interface TermFormProps {
   term?: Term;
@@ -17,6 +18,7 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
     meaning: "",
     category: "",
     reading: "",
+    officialName: "",
     alias: "",
     commonName: "",
     abbreviation: "",
@@ -24,8 +26,10 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [compressedImage, setCompressedImage] = useState<CompressedImage | null>(null);
+  const [compressedImage, setCompressedImage] =
+    useState<CompressedImage | null>(null);
   const [isCompressing, setIsCompressing] = useState(false);
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -35,22 +39,32 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
         meaning: term.meaning,
         category: term.category || "",
         reading: term.reading || "",
+        officialName: term.officialName || "",
         alias: term.alias || "",
         commonName: term.commonName || "",
         abbreviation: term.abbreviation || "",
         image: term.image || "",
       });
       // 既存の画像がある場合は圧縮画像として設定
-      if (term.image && term.image.startsWith('data:')) {
+      if (term.image && term.image.startsWith("data:")) {
         setCompressedImage({
           dataUrl: term.image,
           width: 0,
           height: 0,
-          size: 0
+          size: 0,
         });
       }
     }
   }, [term]);
+
+  // 既存の属性一覧を取得
+  useEffect(() => {
+    const allTerms = TermStorage.getAllTerms();
+    const categories = [
+      ...new Set(allTerms.map((term) => term.category).filter(Boolean)),
+    ];
+    setExistingCategories(categories);
+  }, []);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -79,6 +93,7 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
       meaning: formData.meaning.trim(),
       category: formData.category.trim() || undefined,
       reading: formData.reading.trim() || undefined,
+      officialName: formData.officialName.trim() || undefined,
       alias: formData.alias.trim() || undefined,
       commonName: formData.commonName.trim() || undefined,
       abbreviation: formData.abbreviation.trim() || undefined,
@@ -105,19 +120,21 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
     }
   };
 
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     // ファイルタイプチェック
-    if (!file.type.startsWith('image/')) {
-      alert('画像ファイルを選択してください');
+    if (!file.type.startsWith("image/")) {
+      alert("画像ファイルを選択してください");
       return;
     }
 
     // ファイルサイズチェック（10MB制限）
     if (file.size > 10 * 1024 * 1024) {
-      alert('ファイルサイズは10MB以下にしてください');
+      alert("ファイルサイズは10MB以下にしてください");
       return;
     }
 
@@ -125,10 +142,10 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
     try {
       const compressed = await ImageCompressor.compressImage(file);
       setCompressedImage(compressed);
-      setFormData(prev => ({ ...prev, image: compressed.dataUrl }));
+      setFormData((prev) => ({ ...prev, image: compressed.dataUrl }));
     } catch (error) {
-      console.error('画像圧縮エラー:', error);
-      alert('画像の圧縮に失敗しました');
+      console.error("画像圧縮エラー:", error);
+      alert("画像の圧縮に失敗しました");
     } finally {
       setIsCompressing(false);
     }
@@ -136,7 +153,7 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
 
   const handleRemoveImage = () => {
     setCompressedImage(null);
-    setFormData(prev => ({ ...prev, image: "" }));
+    setFormData((prev) => ({ ...prev, image: "" }));
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -187,11 +204,10 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
             <label className="block text-sm font-medium mb-1 terminal-text">
               属性
             </label>
-            <input
-              type="text"
+            <ComboBox
               value={formData.category}
-              onChange={(e) => handleInputChange("category", e.target.value)}
-              className="terminal-input w-full"
+              onChange={(value) => handleInputChange("category", value)}
+              options={existingCategories}
               placeholder="介護、医療、情報処理など"
             />
           </div>
@@ -206,6 +222,21 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
               onChange={(e) => handleInputChange("reading", e.target.value)}
               className="terminal-input w-full"
               placeholder="ひらがなで入力"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1 terminal-text">
+              正式名称
+            </label>
+            <input
+              type="text"
+              value={formData.officialName}
+              onChange={(e) =>
+                handleInputChange("officialName", e.target.value)
+              }
+              className="terminal-input w-full"
+              placeholder="正式な名称"
             />
           </div>
 
@@ -268,8 +299,12 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
             {compressedImage && (
               <div className="mt-2 space-y-2">
                 <div className="flex items-center justify-between text-sm text-gray-400">
-                  <span>サイズ: {compressedImage.width} × {compressedImage.height}</span>
-                  <span>{ImageCompressor.formatFileSize(compressedImage.size)}</span>
+                  <span>
+                    サイズ: {compressedImage.width} × {compressedImage.height}
+                  </span>
+                  <span>
+                    {ImageCompressor.formatFileSize(compressedImage.size)}
+                  </span>
                 </div>
                 <img
                   src={compressedImage.dataUrl}
@@ -290,15 +325,15 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
 
         {/* ボタン */}
         <div className="flex gap-3 pt-4">
-          <button type="submit" className="terminal-button flex-1">
-            {term ? "更新" : "登録"}
-          </button>
           <button
             type="button"
             onClick={onCancel}
             className="bg-gray-700 hover:bg-gray-600 text-cyan-400 font-semibold px-4 py-2 rounded transition-colors duration-200 flex-1"
           >
             キャンセル
+          </button>
+          <button type="submit" className="terminal-button flex-1">
+            {term ? "更新" : "登録"}
           </button>
         </div>
       </form>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 export const metadata: Metadata = {
   title: "専門用語メモ",
@@ -13,9 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja" className="dark">
-      <body className="bg-gray-900 text-cyan-400 font-mono antialiased">
-        {children}
+    <html lang="ja">
+      <body className="font-mono antialiased">
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
