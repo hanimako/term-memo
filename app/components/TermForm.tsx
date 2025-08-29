@@ -61,7 +61,9 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
   useEffect(() => {
     const allTerms = TermStorage.getAllTerms();
     const categories = [
-      ...new Set(allTerms.map((term) => term.category).filter(Boolean)),
+      ...new Set(
+        allTerms.map((term) => term.category).filter(Boolean) as string[]
+      ),
     ];
     setExistingCategories(categories);
   }, []);
