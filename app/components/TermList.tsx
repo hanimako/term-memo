@@ -211,7 +211,14 @@ export default function TermList({
 
                       {/* 意味 */}
                       <p className="text-gray-300 break-words leading-relaxed">
-                        {term.meaning}
+                        {term.meaning.split("\n").map((line, index) => (
+                          <span key={index}>
+                            {line}
+                            {index < term.meaning.split("\n").length - 1 && (
+                              <br />
+                            )}
+                          </span>
+                        ))}
                       </p>
 
                       {/* タグ類 */}

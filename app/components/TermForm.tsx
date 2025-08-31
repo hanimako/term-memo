@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { Term } from "../types/term";
 import { TermStorage } from "../utils/storage";
 import { ImageCompressor, CompressedImage } from "../utils/image-compressor";
@@ -308,10 +309,13 @@ export default function TermForm({ term, onSave, onCancel }: TermFormProps) {
                     {ImageCompressor.formatFileSize(compressedImage.size)}
                   </span>
                 </div>
-                <img
+                <Image
                   src={compressedImage.dataUrl}
                   alt="プレビュー"
+                  width={compressedImage.width || 200}
+                  height={compressedImage.height || 150}
                   className="max-w-xs max-h-32 object-contain rounded border border-gray-600"
+                  unoptimized
                 />
                 <button
                   type="button"
